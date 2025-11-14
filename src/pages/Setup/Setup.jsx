@@ -9,7 +9,7 @@ import PaymentPlanForm from "./forms/PaymentPlanForm";
 import MilestonePlanForm from "./forms/MilestonePlanForm";
 import BankForm from "./forms/BankForm";
 import NotificationList from "./forms/NotificationList";
-import "./Setup.css";
+ import "./Setup.css";
 
 export default function Setup() {
   const [searchParams] = useSearchParams();
@@ -24,12 +24,12 @@ export default function Setup() {
     milestone: false,
     bank: false,
     notification: false,
+    additionalInfo: false, // NEW SECTION
   });
 
   const toggleSection = (key) =>
     setOpenSections((s) => ({ ...s, [key]: !s[key] }));
 
-  // Load setup data & scope using custom hook
   const {
     setup,
     scope,
@@ -46,7 +46,6 @@ export default function Setup() {
     users,
   } = useSetupData();
 
-  // Right after useSetupData() hook
   console.log("Setup data:", {
     setup,
     scope,
@@ -56,14 +55,11 @@ export default function Setup() {
     error
   });
 
-
-  // Auto-open section from URL query param
   useEffect(() => {
     const section = searchParams.get("open");
     if (section && openSections[section] !== undefined) {
       setOpenSections((s) => ({ ...s, [section]: true }));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   if (loading) {
@@ -212,6 +208,8 @@ export default function Setup() {
             onSuccess={reload}
           />
         </SectionWrapper>
+
+        {/* NEW: Additional Information */}
       </div>
     </div>
   );

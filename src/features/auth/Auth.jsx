@@ -97,7 +97,7 @@ export default function Auth() {
               <div className="auth-logo">
                 <img src={profileImg} alt="Logo" className="logo-image" />
               </div>
-              <h1 className="auth-title">LOTUS DEVELOPERS</h1>
+              <h1 className="auth-title">RAM</h1>
               <p className="auth-subtitle">
                 {isLogin ? 'Welcome back! Please login to your account.' : 'Create your account to get started.'}
               </p>

@@ -1,33 +1,55 @@
 import { useState } from "react";
+import { LeadSetupAPI } from "../../../api/endpoints";
 
-export default function DataReportingForm({ leadSetup, users, onSuccess }) {
+export default function DataReportingForm({ leadSetup, projects, onSuccess }) {
   const [formData, setFormData] = useState({
-    enableDailyReports: false,
-    reportType: "Summary",
-    autoExportFormat: "CSV",
-    frequency: "Weekly",
+    project: "",
+    reportType: "SUMMARY",
+    exportFormat: "CSV",
+    frequency: "WEEKLY",
   });
-
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const updateForm = (key, val) =>
     setFormData((f) => ({ ...f, [key]: val }));
 
-  const handleCancel = () => {
-    setFormData({
-      enableDailyReports: false,
-      reportType: "Summary",
-      autoExportFormat: "CSV",
-      frequency: "Weekly",
-    });
-    setShowSuccess(false);
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const handleSave = () => {
-    console.log("Data & Reporting Settings:", formData);
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
-    onSuccess && onSuccess();
+    if (!formData.project) {
+      alert("Project is required");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const payload = new FormData();
+      payload.append("project", Number(formData.project));
+
+      // Reporting section
+      payload.append("reporting[report_type]", formData.reportType);
+      payload.append("reporting[export_format]", formData.exportFormat);
+      payload.append("reporting[frequency]", formData.frequency);
+
+      await LeadSetupAPI.saveSetup(payload);
+
+      alert("Data & Reporting Settings saved successfully!");
+
+      setFormData({
+        project: "",
+        reportType: "SUMMARY",
+        exportFormat: "CSV",
+        frequency: "WEEKLY",
+      });
+
+      onSuccess && onSuccess();
+    } catch (err) {
+      console.error("Error saving reporting settings:", err);
+      alert("Failed to save settings. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -36,66 +58,26 @@ export default function DataReportingForm({ leadSetup, users, onSuccess }) {
         <h3>Data & Reporting</h3>
       </div>
 
-      <div className="project-form">
-        {/* Daily Reports Toggle */}
-        <div style={{ marginBottom: "24px" }}>
-          <div className="form-section-title" style={{ marginBottom: "12px" }}>
-            Daily Reports
-          </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "12px 0",
-            }}
+      <form onSubmit={handleSubmit} className="project-form">
+        {/* Project Selection */}
+        <div className="form-field" style={{ marginBottom: "24px" }}>
+          <label className="field-label">
+            Select Project <span className="required">*</span>
+          </label>
+          <select
+            className="field-input"
+            value={formData.project}
+            onChange={(e) => updateForm("project", e.target.value)}
+            required
+            disabled={loading}
           >
-            <label style={{ fontSize: "0.95rem", color: "#374151" }}>
-              Enable sending daily performance reports
-            </label>
-            <label
-              style={{
-                position: "relative",
-                display: "inline-block",
-                width: "48px",
-                height: "24px",
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={formData.enableDailyReports}
-                onChange={(e) => updateForm("enableDailyReports", e.target.checked)}
-                style={{ opacity: 0, width: 0, height: 0 }}
-              />
-              <span
-                style={{
-                  position: "absolute",
-                  cursor: "pointer",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  backgroundColor: formData.enableDailyReports ? "#6366f1" : "#d1d5db",
-                  transition: "0.3s",
-                  borderRadius: "24px",
-                }}
-              >
-                <span
-                  style={{
-                    position: "absolute",
-                    content: "",
-                    height: "18px",
-                    width: "18px",
-                    left: formData.enableDailyReports ? "26px" : "3px",
-                    bottom: "3px",
-                    backgroundColor: "white",
-                    transition: "0.3s",
-                    borderRadius: "50%",
-                  }}
-                />
-              </span>
-            </label>
-          </div>
+            <option value="">Select Project</option>
+            {projects.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Report Type */}
@@ -105,11 +87,12 @@ export default function DataReportingForm({ leadSetup, users, onSuccess }) {
             className="field-input"
             value={formData.reportType}
             onChange={(e) => updateForm("reportType", e.target.value)}
+            disabled={loading}
           >
-            <option value="Summary">Summary</option>
-            <option value="Detailed">Detailed</option>
-            <option value="Analytics">Analytics</option>
-            <option value="Custom">Custom</option>
+            <option value="SUMMARY">Summary</option>
+            <option value="DETAILED">Detailed</option>
+            <option value="ANALYTICS">Analytics</option>
+            <option value="CUSTOM">Custom</option>
           </select>
         </div>
 
@@ -118,11 +101,12 @@ export default function DataReportingForm({ leadSetup, users, onSuccess }) {
           <label className="field-label">Auto-Export Format</label>
           <select
             className="field-input"
-            value={formData.autoExportFormat}
-            onChange={(e) => updateForm("autoExportFormat", e.target.value)}
+            value={formData.exportFormat}
+            onChange={(e) => updateForm("exportFormat", e.target.value)}
+            disabled={loading}
           >
             <option value="CSV">CSV</option>
-            <option value="Excel">Excel</option>
+            <option value="EXCEL">Excel</option>
             <option value="PDF">PDF</option>
             <option value="JSON">JSON</option>
           </select>
@@ -135,31 +119,14 @@ export default function DataReportingForm({ leadSetup, users, onSuccess }) {
             className="field-input"
             value={formData.frequency}
             onChange={(e) => updateForm("frequency", e.target.value)}
+            disabled={loading}
           >
-            <option value="Daily">Daily</option>
-            <option value="Weekly">Weekly</option>
-            <option value="Monthly">Monthly</option>
-            <option value="Quarterly">Quarterly</option>
+            <option value="DAILY">Daily</option>
+            <option value="WEEKLY">Weekly</option>
+            <option value="MONTHLY">Monthly</option>
+            <option value="QUARTERLY">Quarterly</option>
           </select>
         </div>
-
-        {/* Success Message */}
-        {showSuccess && (
-          <div
-            style={{
-              display: "inline-block",
-              padding: "8px 16px",
-              background: "#10b981",
-              color: "white",
-              borderRadius: "6px",
-              fontSize: "0.9rem",
-              fontWeight: 600,
-              marginBottom: "20px",
-            }}
-          >
-            Settings updated successfully!
-          </div>
-        )}
 
         {/* Action Buttons */}
         <div
@@ -172,25 +139,31 @@ export default function DataReportingForm({ leadSetup, users, onSuccess }) {
         >
           <button
             type="button"
-            onClick={handleCancel}
+            onClick={() => setFormData({
+              project: "",
+              reportType: "SUMMARY",
+              exportFormat: "CSV",
+              frequency: "WEEKLY",
+            })}
             className="btn-cancel"
+            disabled={loading}
           >
             Cancel
           </button>
           <button
-            type="button"
-            onClick={handleSave}
+            type="submit"
             className="btn-primary"
             style={{
               padding: "10px 24px",
               background: "#6366f1",
               fontSize: "0.9rem",
             }}
+            disabled={loading}
           >
-            Save Settings
+            {loading ? "Saving..." : "Save Settings"}
           </button>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

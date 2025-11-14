@@ -9,6 +9,8 @@ import BudgetOfferingForm from "./forms/BudgetOfferingForm";
 import SiteVisitSettingForm from "./forms/SiteVisitSettingForm";
 import DataReportingForm from "./forms/DataReportingForm";
 import "./LeadSetup.css";
+import AdditionalInfoForm from "./forms/AdditionalInfoForm"; //
+import StagesForm from "./forms/StagesForm"; //
 
 export default function LeadSetup() {
   const [searchParams] = useSearchParams();
@@ -29,6 +31,7 @@ export default function LeadSetup() {
 
   // Load lead setup data & scope using custom hook
   const {
+    setup,          // ← ADD THIS LINE!
     leadSetup,
     leadScope,
     loading,
@@ -107,6 +110,7 @@ export default function LeadSetup() {
           onToggle={() => toggleSection("projectUnit")}
         >
           <ProjectUnitConfigForm
+            setup={setup}
             leadSetup={leadSetup}
             projects={projects}
             units={units}
@@ -122,6 +126,7 @@ export default function LeadSetup() {
         >
           <LeadClassificationForm
             leadSetup={leadSetup}
+            projects={projects}
             onSuccess={reload}
           />
         </SectionWrapper>
@@ -187,10 +192,34 @@ export default function LeadSetup() {
         >
           <DataReportingForm
             leadSetup={leadSetup}
+            projects={projects}    
             users={users}
             onSuccess={reload}
           />
         </SectionWrapper>
+
+                {/* NEW: Additional Information */}
+        <SectionWrapper
+          title="Additional Information"
+          isOpen={openSections.additionalInfo}
+          onToggle={() => toggleSection("additionalInfo")}
+        >
+          <AdditionalInfoForm
+            setup={setup}
+            projects={projects}  
+            onSuccess={reload}
+          />
+        </SectionWrapper>
+
+        {/* NEW: Stages */}
+        <SectionWrapper
+          title="Stages"
+          isOpen={openSections.stages}
+          onToggle={() => toggleSection("stages")}
+        >
+          <StagesForm projects={projects} onSuccess={reload} />
+        </SectionWrapper>
+
       </div>
     </div>
   );

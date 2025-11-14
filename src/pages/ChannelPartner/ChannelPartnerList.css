@@ -1,10 +1,10 @@
-.projects-list-page {
+.partner-list-page {
   padding: 20px;
   background: #f8f9fa;
   min-height: 100vh;
 }
 
-.projects-list-container {
+.partner-list-container {
   max-width: 1400px;
   margin: 0 auto;
   background: white;
@@ -55,12 +55,12 @@
 }
 
 .search-input:focus {
-  border-color: #102a54;
+  border-color: #6366f1;
 }
 
 .btn-add {
   padding: 10px 20px;
-  background: #102a54;
+  background: #6366f1;
   color: white;
   border: none;
   border-radius: 6px;
@@ -72,7 +72,7 @@
 }
 
 .btn-add:hover {
-  background: #0d1f3f;
+  background: #4f46e5;
 }
 
 .pagination-info {
@@ -99,7 +99,7 @@
 
 .pagination-btn:hover:not(:disabled) {
   background: #f3f4f6;
-  border-color: #102a54;
+  border-color: #6366f1;
 }
 
 .pagination-btn:disabled {
@@ -143,9 +143,10 @@
   background: #f9fafb;
 }
 
-.action-buttons {
+.row-actions {
   display: flex;
   gap: 8px;
+  align-items: center;
 }
 
 .action-btn {
@@ -167,6 +168,11 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.view-btn:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
 .edit-btn:hover {
   border-color: #f59e0b;
   background: #fffbeb;
@@ -177,9 +183,59 @@
   background: #fef2f2;
 }
 
-.view-btn:hover {
-  border-color: #3b82f6;
-  background: #eff6ff;
+.partner-name {
+  font-weight: 600;
+  color: #111827;
+}
+
+.email-cell {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* Badges */
+.status-badge,
+.tier-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.badge-active {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.badge-inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-gold {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-silver {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.badge-bronze {
+  background: #fed7aa;
+  color: #9a3412;
+}
+
+/* States */
+.loading-state,
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+  font-size: 14px;
 }
 
 /* Responsive */
@@ -206,6 +262,6 @@
   }
 
   .data-table {
-    min-width: 900px;
+    min-width: 1000px;
   }
 }

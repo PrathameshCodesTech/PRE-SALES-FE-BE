@@ -1,20 +1,80 @@
 import { useState } from "react";
+import { LeadSetupAPI } from "../../../api/endpoints";
 
 export default function BudgetOfferingForm({ leadSetup, projects, onSuccess }) {
   const [formData, setFormData] = useState({
-    defaultCurrency: "USD",
-    budgetMin: "100000",
-    budgetMax: "500000",
-    defaultOfferingType: "Residential",
+    project: "",
+    currency: "INR",
+    budgetMin: "",
+    budgetMax: "",
+    offeringTypes: [], // Multi-select for offering types
   });
+  const [loading, setLoading] = useState(false);
 
   const updateForm = (key, val) =>
     setFormData((f) => ({ ...f, [key]: val }));
 
-  const handleSave = () => {
-    console.log("Budget & Offering Settings:", formData);
-    alert("Budget & Offering Settings saved! (Static - No API yet)");
-    onSuccess && onSuccess();
+  const handleOfferingTypeToggle = (typeId) => {
+    const current = formData.offeringTypes;
+    const updated = current.includes(typeId)
+      ? current.filter((id) => id !== typeId)
+      : [...current, typeId];
+    updateForm("offeringTypes", updated);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.project) {
+      alert("Project is required");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const payload = new FormData();
+      payload.append("project", Number(formData.project));
+
+      // Budget Offer section
+      const budgetOffer = {};
+      if (formData.currency) budgetOffer.currency = formData.currency;
+      if (formData.budgetMin) budgetOffer.budget_min = formData.budgetMin;
+      if (formData.budgetMax) budgetOffer.budget_max = formData.budgetMax;
+      if (formData.offeringTypes.length > 0) {
+        budgetOffer.offering_types = formData.offeringTypes;
+      }
+
+      // Send as nested JSON in FormData
+      if (Object.keys(budgetOffer).length > 0) {
+        Object.entries(budgetOffer).forEach(([key, value]) => {
+          if (key === "offering_types") {
+            payload.append(`budget_offer[${key}]`, JSON.stringify(value));
+          } else {
+            payload.append(`budget_offer[${key}]`, value);
+          }
+        });
+      }
+
+      await LeadSetupAPI.saveSetup(payload);
+
+      alert("Budget & Offering Settings saved successfully!");
+
+      setFormData({
+        project: "",
+        currency: "INR",
+        budgetMin: "",
+        budgetMax: "",
+        offeringTypes: [],
+      });
+
+      onSuccess && onSuccess();
+    } catch (err) {
+      console.error("Error saving budget settings:", err);
+      alert("Failed to save settings. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -23,20 +83,42 @@ export default function BudgetOfferingForm({ leadSetup, projects, onSuccess }) {
         <h3>Budget & Offering Settings</h3>
       </div>
 
-      <div className="project-form">
-        {/* Default Currency */}
+      <form onSubmit={handleSubmit} className="project-form">
+        {/* Project Selection */}
         <div className="form-field">
+          <label className="field-label">
+            Select Project <span className="required">*</span>
+          </label>
+          <select
+            className="field-input"
+            value={formData.project}
+            onChange={(e) => updateForm("project", e.target.value)}
+            required
+            disabled={loading}
+          >
+            <option value="">Select Project</option>
+            {projects.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Default Currency */}
+        <div className="form-field" style={{ marginTop: "20px" }}>
           <label className="field-label">Default Currency</label>
           <select
             className="field-input"
-            value={formData.defaultCurrency}
-            onChange={(e) => updateForm("defaultCurrency", e.target.value)}
+            value={formData.currency}
+            onChange={(e) => updateForm("currency", e.target.value)}
+            disabled={loading}
           >
-            <option value="USD">USD</option>
-            <option value="EUR">EUR</option>
-            <option value="GBP">GBP</option>
-            <option value="INR">INR</option>
-            <option value="AED">AED</option>
+            <option value="INR">INR (Indian Rupee)</option>
+            <option value="USD">USD (US Dollar)</option>
+            <option value="EUR">EUR (Euro)</option>
+            <option value="GBP">GBP (British Pound)</option>
+            <option value="AED">AED (UAE Dirham)</option>
           </select>
         </div>
 
@@ -57,6 +139,8 @@ export default function BudgetOfferingForm({ leadSetup, projects, onSuccess }) {
               onChange={(e) => updateForm("budgetMin", e.target.value)}
               placeholder="Min budget"
               style={{ flex: 1 }}
+              disabled={loading}
+              step="0.01"
             />
             <span style={{ color: "#6b7280", fontSize: "0.9rem" }}>to</span>
             <input
@@ -66,38 +150,43 @@ export default function BudgetOfferingForm({ leadSetup, projects, onSuccess }) {
               onChange={(e) => updateForm("budgetMax", e.target.value)}
               placeholder="Max budget"
               style={{ flex: 1 }}
+              disabled={loading}
+              step="0.01"
             />
           </div>
         </div>
 
-        {/* Default Offering Type */}
-        <div className="form-field" style={{ marginTop: "20px" }}>
-          <label className="field-label">Default Offering Type</label>
-          <select
-            className="field-input"
-            value={formData.defaultOfferingType}
-            onChange={(e) => updateForm("defaultOfferingType", e.target.value)}
-          >
-            <option value="">--Select Offering Type--</option>
-            <option value="Residential">Residential</option>
-            <option value="Commercial">Commercial</option>
-            <option value="Mixed Use">Mixed Use</option>
-            <option value="Industrial">Industrial</option>
-            <option value="Retail">Retail</option>
-          </select>
+        {/* Offering Types (Multi-select checkboxes) */}
+        <div style={{ marginTop: "20px", marginBottom: "24px" }}>
+          <label className="field-label" style={{ marginBottom: "12px", display: "block" }}>
+            Offering Types
+          </label>
+          <div className="checkbox-group">
+            {leadSetup?.offering_types?.map((type) => (
+              <label key={type.id} className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={formData.offeringTypes.includes(type.id)}
+                  onChange={() => handleOfferingTypeToggle(type.id)}
+                  disabled={loading}
+                />
+                <span>{type.name}</span>
+              </label>
+            ))}
+          </div>
         </div>
 
         {/* Save Button */}
         <div className="form-actions-right" style={{ marginTop: "24px" }}>
           <button
-            type="button"
-            onClick={handleSave}
+            type="submit"
             className="btn-add-project"
+            disabled={loading}
           >
-            SAVE SETTINGS
+            {loading ? "SAVING..." : "SAVE SETTINGS"}
           </button>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

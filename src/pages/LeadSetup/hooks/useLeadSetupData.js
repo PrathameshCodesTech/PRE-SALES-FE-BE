@@ -1,90 +1,106 @@
 import { useState, useEffect } from "react";
+import { LeadSetupAPI, SetupAPI } from "../../../api/endpoints";
 
 export function useLeadSetupData() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [adminIdForScope, setAdminIdForScope] = useState("");
-
-  // Static dummy data
-  const [leadSetup] = useState({
-    statuses: {
-      lead: [
-        { code: "NEW", label: "New" },
-        { code: "CONTACTED", label: "Contacted" },
-        { code: "QUALIFIED", label: "Qualified" },
-        { code: "CONVERTED", label: "Converted" },
-        { code: "LOST", label: "Lost" },
-      ],
-    },
-    lookups: {
-      classifications: [
-        { id: 1, name: "Hot Lead", code: "HOT" },
-        { id: 2, name: "Warm Lead", code: "WARM" },
-        { id: 3, name: "Cold Lead", code: "COLD" },
-      ],
-      sources: [
-        { id: 1, name: "Website", code: "WEBSITE" },
-        { id: 2, name: "Referral", code: "REFERRAL" },
-        { id: 3, name: "Social Media", code: "SOCIAL" },
-      ],
-    },
+  const [setup, setSetup] = useState(null);
+  const [leadSetup, setLeadSetup] = useState({
+    classifications: [],
+    sources: [],
+    stages: [],
+    purposes: [],
+    statuses: [],
+    offering_types: [],
   });
+  const [projects, setProjects] = useState([]);
+  const [units, setUnits] = useState([]);
+  const [selectedProjectId, setSelectedProjectId] = useState(null);
 
-  const [leadScope] = useState({
-    projects: [
-      { id: 1, name: "Grand Heights Residencies" },
-      { id: 2, name: "Ocean View Towers" },
-      { id: 3, name: "Urban Living Complex" },
-    ],
-    units: [
-      { id: 1, name: "Unit 101", project: 1 },
-      { id: 2, name: "Unit 102", project: 1 },
-      { id: 3, name: "Unit 201", project: 2 },
-    ],
-  });
+  const [users, setUsers] = useState([]);
 
-  const [users] = useState([
-    { id: 1, username: "admin01", role: "ADMIN" },
-    { id: 2, username: "sales01", role: "SALES" },
-    { id: 3, username: "sales02", role: "SALES" },
-  ]);
+  const loadData = async (projectId = null) => {
+    setLoading(true);
+    setError(null);
 
-  // Derived data
-  const projects = leadScope.projects || [];
-  const units = leadScope.units || [];
-  const isStaff = false; // Change to true if needed
+    try {
+      // Fetch setup bundle (for lookups like unit_types, facings, etc.)
+      console.log("🔍 Fetching setup bundle...");
+      const setupBundle = await SetupAPI.getBundle();
+      console.log("✅ Setup Bundle received:", setupBundle);
+      console.log("📦 Unit Types:", setupBundle?.lookups?.unit_types);
+      setSetup(setupBundle);
 
-  // Simulate loading
-  useEffect(() => {
-    const timer = setTimeout(() => {
+      // Extract users from setup bundle
+      const fetchedUsers = setupBundle?.users?.items || [];
+      console.log("👥 Users extracted:", fetchedUsers);
+      setUsers(fetchedUsers);
+
+      // Fetch projects
+      console.log("🔍 Fetching projects...");
+      const scopeData = await SetupAPI.myScope({ include_units: true });
+      console.log("✅ Scope Data received:", scopeData);
+      const fetchedProjects = scopeData.projects || [];
+      console.log("📋 Projects:", fetchedProjects);
+      setProjects(fetchedProjects);
+
+      // Determine which project to use for masters
+      const projectIdToUse = projectId || fetchedProjects[0]?.id;
+
+      if (!projectIdToUse) {
+        throw new Error("No projects available");
+      }
+
+      console.log("🎯 Using project ID for masters:", projectIdToUse);
+      setSelectedProjectId(projectIdToUse);
+
+      // Fetch lead masters for that project
+      console.log("🔍 Fetching lead masters...");
+      const mastersData = await LeadSetupAPI.getMasters({
+        project_id: projectIdToUse,
+      });
+      console.log("✅ Lead Masters received:", mastersData);
+      console.log("🏢 Offering Types:", mastersData?.offering_types);
+      setLeadSetup(mastersData);
+
+      // Extract all units from all projects
+      const allUnits = [];
+      fetchedProjects.forEach((project) => {
+        project.towers?.forEach((tower) => {
+          tower.floors?.forEach((floor) => {
+            floor.units?.forEach((unit) => {
+              allUnits.push({ ...unit, project: project.id });
+            });
+          });
+        });
+      });
+      console.log("📍 Total units extracted:", allUnits.length);
+      setUnits(allUnits);
+    } catch (err) {
+      console.error("❌ Error loading lead setup data:", err);
+      setError(err.message || "Failed to load data");
+    } finally {
       setLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Reload function (does nothing for now)
-  const reload = () => {
-    console.log("Reload called (static mode - no actual reload)");
+    }
   };
 
-  // Handle load scope for admin (does nothing for now)
-  const handleLoadScopeForAdmin = () => {
-    console.log("Load admin scope called (static mode)");
-    alert(`Loading scope for admin ID: ${adminIdForScope}`);
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const reload = (projectId = null) => {
+    loadData(projectId);
   };
 
   return {
+    setup,
     leadSetup,
-    leadScope,
-    loading,
-    error,
-    isStaff,
-    adminIdForScope,
-    setAdminIdForScope,
-    handleLoadScopeForAdmin,
-    reload,
     projects,
     units,
     users,
+    selectedProjectId,
+    loading,
+    error,
+    reload,
   };
 }

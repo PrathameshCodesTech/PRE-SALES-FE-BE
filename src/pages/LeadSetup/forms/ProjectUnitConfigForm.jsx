@@ -1,13 +1,23 @@
 import { useState } from "react";
+import { LeadSetupAPI } from "../../../api/endpoints";
 
-export default function ProjectUnitConfigForm({ leadSetup, projects, units, onSuccess }) {
+export default function ProjectUnitConfigForm({ setup, leadSetup, projects, onSuccess }) {
+  console.log("🎨 ProjectUnitConfigForm Props:");
+  console.log("  - setup:", setup);
+  console.log("  - setup.lookups:", setup?.lookups);
+  console.log("  - setup.lookups.unit_types:", setup?.lookups?.unit_types);
+  console.log("  - leadSetup:", leadSetup);
+  console.log("  - leadSetup.offering_types:", leadSetup?.offering_types);
+  console.log("  - projects:", projects);
+
   const [formData, setFormData] = useState({
-    projectName: "",
-    unitTypes: [],
+    project: "",
+    unitTypes: "",
     offeringType: "",
     projectDescription: "",
     projectImage: null,
   });
+  const [loading, setLoading] = useState(false);
 
   const updateForm = (key, val) =>
     setFormData((f) => ({ ...f, [key]: val }));
@@ -15,22 +25,57 @@ export default function ProjectUnitConfigForm({ leadSetup, projects, units, onSu
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.projectName.trim()) {
-      alert("Project Name is required");
+    if (!formData.project) {
+      alert("Project is required");
       return;
     }
 
-    console.log("Form Data:", formData);
-    alert("Project & Unit Configuration saved! (Static - No API yet)");
-    
-    // Reset form
-    setFormData({
-      projectName: "",
-      unitTypes: [],
-      offeringType: "",
-      projectDescription: "",
-      projectImage: null,
-    });
+    setLoading(true);
+
+    try {
+      const payload = new FormData();
+      payload.append("project", Number(formData.project));
+
+      if (formData.projectDescription) {
+        payload.append("project_lead[project_description]", formData.projectDescription);
+      }
+      if (formData.projectImage) {
+        payload.append("project_lead[logo]", formData.projectImage);
+      }
+      
+      if (formData.unitTypes) {
+        payload.append("project_lead[unit_types]", JSON.stringify([Number(formData.unitTypes)]));
+      }
+
+      if (formData.offeringType) {
+        payload.append("budget_offer[offering_types]", JSON.stringify([Number(formData.offeringType)]));
+      }
+
+      console.log("📤 Submitting payload:");
+      for (let pair of payload.entries()) {
+        console.log(`  ${pair[0]}:`, pair[1]);
+      }
+
+      await LeadSetupAPI.saveSetup(payload);
+      
+      alert("Project & Unit Configuration saved successfully!");
+      
+      setFormData({
+        project: "",
+        unitTypes: "",
+        offeringType: "",
+        projectDescription: "",
+        projectImage: null,
+      });
+      
+      onSuccess && onSuccess();
+      
+    } catch (err) {
+      console.error("❌ Error saving configuration:", err);
+      alert("Failed to save configuration. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleImageUpload = (e) => {
@@ -47,37 +92,45 @@ export default function ProjectUnitConfigForm({ leadSetup, projects, units, onSu
       </div>
 
       <form onSubmit={handleSubmit} className="project-form">
-        {/* Row 1: Project Name */}
         <div className="form-grid">
           <div className="form-field">
             <label className="field-label">
-              Project Name <span className="required">*</span>
+              Select Project <span className="required">*</span>
             </label>
-            <input
+            <select
               className="field-input"
-              value={formData.projectName}
-              onChange={(e) => updateForm("projectName", e.target.value)}
-              placeholder="Enter project name"
+              value={formData.project}
+              onChange={(e) => updateForm("project", e.target.value)}
               required
-            />
+              disabled={loading}
+            >
+              <option value="">Select Project</option>
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
           </div>
-        </div>
 
-        {/* Row 2: Add Unit Types, Offering Type */}
-        <div className="form-grid">
           <div className="form-field">
-            <label className="field-label">Add Unit Types</label>
+            <label className="field-label">Unit Type</label>
             <select
               className="field-input"
               value={formData.unitTypes}
               onChange={(e) => updateForm("unitTypes", e.target.value)}
+              disabled={loading}
             >
-              <option value="">--Select Unit Type--</option>
-              <option value="apartment">Apartment</option>
-              <option value="studio">Studio</option>
-              <option value="penthouse">Penthouse</option>
-              <option value="duplex">Duplex</option>
-              <option value="commercial">Commercial Suite</option>
+              <option value="">Select Unit Type</option>
+              {setup?.lookups?.unit_types ? (
+                setup.lookups.unit_types.map((ut) => (
+                  <option key={ut.id} value={ut.id}>
+                    {ut.name}
+                  </option>
+                ))
+              ) : (
+                <option disabled>No unit types available</option>
+              )}
             </select>
           </div>
 
@@ -87,18 +140,22 @@ export default function ProjectUnitConfigForm({ leadSetup, projects, units, onSu
               className="field-input"
               value={formData.offeringType}
               onChange={(e) => updateForm("offeringType", e.target.value)}
+              disabled={loading}
             >
-              <option value="">--Select Offering Type--</option>
-              <option value="residential">Residential</option>
-              <option value="commercial">Commercial</option>
-              <option value="mixed">Mixed Use</option>
-              <option value="industrial">Industrial</option>
-              <option value="retail">Retail</option>
+              <option value="">Select Offering Type</option>
+              {leadSetup?.offering_types ? (
+                leadSetup.offering_types.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.name}
+                  </option>
+                ))
+              ) : (
+                <option disabled>No offering types available</option>
+              )}
             </select>
           </div>
         </div>
 
-        {/* Row 3: Project Description (full width) */}
         <div className="form-field-full">
           <label className="field-label">Project Description</label>
           <textarea
@@ -107,10 +164,10 @@ export default function ProjectUnitConfigForm({ leadSetup, projects, units, onSu
             value={formData.projectDescription}
             onChange={(e) => updateForm("projectDescription", e.target.value)}
             placeholder="Grand Heights Residencies offers luxurious urban living with state-of-the-art amenities and breathtaking city views. Each unit is designed for comfort and modern aesthetics."
+            disabled={loading}
           />
         </div>
 
-        {/* Row 4: Project Image/Logo */}
         <div className="form-grid">
           <div className="form-field">
             <label className="field-label">Project Image/Logo</label>
@@ -130,16 +187,20 @@ export default function ProjectUnitConfigForm({ leadSetup, projects, units, onSu
                   accept="image/*"
                   onChange={handleImageUpload}
                   style={{ display: "none" }}
+                  disabled={loading}
                 />
               </label>
             </div>
           </div>
         </div>
 
-        {/* Submit Button */}
         <div className="form-actions-right">
-          <button type="submit" className="btn-add-project">
-            SAVE CONFIGURATION
+          <button 
+            type="submit" 
+            className="btn-add-project"
+            disabled={loading}
+          >
+            {loading ? "SAVING..." : "SAVE CONFIGURATION"}
           </button>
         </div>
       </form>

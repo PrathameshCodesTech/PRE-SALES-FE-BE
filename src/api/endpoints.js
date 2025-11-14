@@ -31,6 +31,27 @@ export const URLS = {
   // notifications
   notifications: "client/notifications/",
   notifMarkRead: (id) => `client/notifications/${id}/mark_read/`,
+
+  // Lead Setup APIs
+  leadMasters: "leadManagement/v2/leads/masters/",
+  leadSetup: "leadManagement/v2/leads/setup/",
+
+  
+  // Lead Classifications & Sources (ViewSets)
+  leadClassifications: "leadManagement/classifications/",
+  leadSources: "leadManagement/sources/",
+
+  // Sales Leads (NEW)
+  salesLeads: "leadManagement/v2/sales-leads/",
+  salesLeadBundleCreate: "leadManagement/v2/sales-leads/bundle-create/",
+
+  visitingHalf: "leadManagement/visiting-half/",
+  familySize: "leadManagement/family-size/",
+  residencyOwnership: "leadManagement/residency-ownership/",
+  possessionDesigned: "leadManagement/possession-designed/",
+  occupations: "leadManagement/occupations/",
+  designations: "leadManagement/designations/",
+  leadStages: "leadManagement/stages/"
 };
 
 export const AuthAPI = {
@@ -94,8 +115,120 @@ export const NotificationAPI = {
   markRead: (id) => api.post(URLS.notifMarkRead(id)).then((r) => r.data),
 };
 
+export const LeadSetupAPI = {
+  // GET lead masters
+  getMasters: (params = {}) =>
+    api.get(URLS.leadMasters, { params }).then((r) => r.data),
+
+  // POST lead setup
+  saveSetup: (formData) =>
+    api.post(URLS.leadSetup, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }).then((r) => r.data),
+
+  // Classifications CRUD
+  getClassifications: (params = {}) =>
+    api.get(URLS.leadClassifications, { params }).then((r) => r.data),
+  
+  createClassification: (payload) =>
+    api.post(URLS.leadClassifications, payload).then((r) => r.data),
+  
+  deleteClassification: (id) =>
+    api.delete(`${URLS.leadClassifications}${id}/`).then((r) => r.data),
+
+  // Sources CRUD
+  getSources: (params = {}) =>
+    api.get(URLS.leadSources, { params }).then((r) => r.data),
+  
+  createSource: (payload) =>
+    api.post(URLS.leadSources, payload).then((r) => r.data),
+  
+  deleteSource: (id) =>
+    api.delete(`${URLS.leadSources}${id}/`).then((r) => r.data),
+};
+
+// NEW: Sales Leads API
+export const LeadAPI = {
+  list: (params = {}) =>
+    api.get(URLS.salesLeads, { params }).then((r) => r.data),
+  
+  get: (id) =>
+    api.get(`${URLS.salesLeads}${id}/`).then((r) => r.data),
+  
+  createBundle: (payload) =>
+    api.post(URLS.salesLeadBundleCreate, payload).then((r) => r.data),
+  
+  update: (id, payload) =>
+    api.put(`${URLS.salesLeads}${id}/`, payload).then((r) => r.data),
+  
+  delete: (id) =>
+    api.delete(`${URLS.salesLeads}${id}/`).then((r) => r.data),
+};
 
 
 
+export const AdditionalInfoAPI = {
+  // Visiting Half
+  getVisitingHalf: (params = {}) =>
+    api.get(URLS.visitingHalf, { params }).then((r) => r.data),
+  createVisitingHalf: (payload) =>
+    api.post(URLS.visitingHalf, payload).then((r) => r.data),
+  deleteVisitingHalf: (id) =>
+    api.delete(`${URLS.visitingHalf}${id}/`).then((r) => r.data),
+
+  // Family Size
+  getFamilySize: (params = {}) =>
+    api.get(URLS.familySize, { params }).then((r) => r.data),
+  createFamilySize: (payload) =>
+    api.post(URLS.familySize, payload).then((r) => r.data),
+  deleteFamilySize: (id) =>
+    api.delete(`${URLS.familySize}${id}/`).then((r) => r.data),
+
+  // Residency Ownership
+  getResidencyOwnership: (params = {}) =>
+    api.get(URLS.residencyOwnership, { params }).then((r) => r.data),
+  createResidencyOwnership: (payload) =>
+    api.post(URLS.residencyOwnership, payload).then((r) => r.data),
+  deleteResidencyOwnership: (id) =>
+    api.delete(`${URLS.residencyOwnership}${id}/`).then((r) => r.data),
+
+  // Possession Designed
+  getPossessionDesigned: (params = {}) =>
+    api.get(URLS.possessionDesigned, { params }).then((r) => r.data),
+  createPossessionDesigned: (payload) =>
+    api.post(URLS.possessionDesigned, payload).then((r) => r.data),
+  deletePossessionDesigned: (id) =>
+    api.delete(`${URLS.possessionDesigned}${id}/`).then((r) => r.data),
+
+  // Occupations
+  getOccupations: (params = {}) =>
+    api.get(URLS.occupations, { params }).then((r) => r.data),
+  createOccupation: (payload) =>
+    api.post(URLS.occupations, payload).then((r) => r.data),
+  deleteOccupation: (id) =>
+    api.delete(`${URLS.occupations}${id}/`).then((r) => r.data),
+
+  // Designations
+  getDesignations: (params = {}) =>
+    api.get(URLS.designations, { params }).then((r) => r.data),
+  createDesignation: (payload) =>
+    api.post(URLS.designations, payload).then((r) => r.data),
+  deleteDesignation: (id) =>
+    api.delete(`${URLS.designations}${id}/`).then((r) => r.data),
+};
+
+export const LeadStageAPI = {
+  getStages: (params = {}) =>
+    api.get(URLS.leadStages, { params }).then((r) => r.data),
+  
+  createStage: (payload) =>
+    api.post(URLS.leadStages, payload).then((r) => r.data),
+  
+  updateStage: (id, payload) =>
+    api.put(`${URLS.leadStages}${id}/`, payload).then((r) => r.data),
+  
+  deleteStage: (id) =>
+    api.delete(`${URLS.leadStages}${id}/`).then((r) => r.data),
+};
 // Optional: export BASE_URL to build absolute links if needed elsewhere
 export { BASE_URL };

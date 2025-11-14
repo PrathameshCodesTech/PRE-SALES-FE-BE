@@ -1,105 +1,124 @@
 .leads-list-page {
   padding: 20px;
-  background: #f9fafb;
+  background: #f8f9fa;
   min-height: 100vh;
 }
 
 .leads-list-container {
-  max-width: 1600px;
+  max-width: 1400px;
   margin: 0 auto;
-  background: #ffffff;
+  background: white;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
 }
 
-/* Header Section */
+/* Header */
 .list-header {
+  padding: 20px;
+  border-bottom: 1px solid #e5e7eb;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid #e5e7eb;
-  background: #fff;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .search-section {
   display: flex;
+  gap: 12px;
+  flex: 1;
   align-items: center;
-  gap: 16px;
 }
 
 .search-box {
   position: relative;
-  display: flex;
-  align-items: center;
+  flex: 1;
+  max-width: 400px;
 }
 
 .search-icon {
   position: absolute;
   left: 12px;
-  font-size: 18px;
+  top: 50%;
+  transform: translateY(-50%);
   color: #6b7280;
 }
 
 .search-input {
+  width: 100%;
   padding: 10px 12px 10px 40px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
-  font-size: 0.95rem;
-  width: 350px;
+  font-size: 14px;
+  outline: none;
   transition: border-color 0.2s;
 }
 
 .search-input:focus {
-  outline: none;
   border-color: #102a54;
-  box-shadow: 0 0 0 3px rgba(16, 42, 84, 0.1);
+}
+
+.filter-select {
+  padding: 10px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  outline: none;
+  min-width: 140px;
+}
+
+.filter-select:focus {
+  border-color: #102a54;
 }
 
 .btn-add {
-  padding: 10px 24px;
+  padding: 10px 20px;
   background: #102a54;
   color: white;
   border: none;
   border-radius: 6px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
-  font-size: 0.95rem;
+  white-space: nowrap;
 }
 
 .btn-add:hover {
   background: #0d1f3f;
 }
 
-/* Pagination Info */
 .pagination-info {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 0.9rem;
+  font-size: 14px;
   color: #6b7280;
 }
 
 .pagination-btn {
-  padding: 6px 12px;
-  background: transparent;
+  width: 32px;
+  height: 32px;
   border: 1px solid #d1d5db;
+  background: white;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s;
-  font-size: 0.9rem;
-  color: #374151;
 }
 
 .pagination-btn:hover:not(:disabled) {
   background: #f3f4f6;
-  border-color: #9ca3af;
+  border-color: #102a54;
 }
 
 .pagination-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
@@ -115,131 +134,153 @@
 
 .data-table thead {
   background: #f9fafb;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .data-table th {
-  padding: 16px 20px;
+  padding: 12px 16px;
   text-align: left;
-  font-size: 0.875rem;
+  font-size: 12px;
   font-weight: 600;
   color: #374151;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.5px;
 }
 
-.data-table tbody tr {
-  border-bottom: 1px solid #e5e7eb;
-  transition: background 0.2s;
+.data-table td {
+  padding: 16px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 14px;
+  color: #111827;
 }
 
 .data-table tbody tr:hover {
   background: #f9fafb;
 }
 
-.data-table td {
-  padding: 16px 20px;
-  font-size: 0.95rem;
+.row-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.action-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.view-btn:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.edit-btn:hover {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+
+.delete-btn:hover {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.lead-name {
+  font-weight: 600;
   color: #111827;
+}
+
+.email-cell {
+  color: #6b7280;
+  font-size: 13px;
 }
 
 /* Status Badges */
 .status-badge {
+  display: inline-block;
   padding: 4px 12px;
   border-radius: 12px;
-  font-size: 0.85rem;
+  font-size: 12px;
   font-weight: 600;
-  display: inline-block;
+  text-transform: capitalize;
 }
 
-.status-new {
+.badge-new {
   background: #dbeafe;
   color: #1e40af;
 }
 
-.status-contacted {
+.badge-contacted {
   background: #fef3c7;
   color: #92400e;
 }
 
-.status-qualified {
+.badge-qualified {
   background: #d1fae5;
   color: #065f46;
 }
 
-.status-converted {
-  background: #e0e7ff;
-  color: #3730a3;
+.badge-converted {
+  background: #d1fae5;
+  color: #047857;
 }
 
-.status-lost {
+.badge-lost {
   background: #fee2e2;
   color: #991b1b;
 }
 
-/* Action Buttons */
-.action-buttons {
-  display: flex;
-  gap: 8px;
+.badge-default {
+  background: #f3f4f6;
+  color: #374151;
 }
 
-.action-btn {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-  padding: 4px;
-  transition: transform 0.2s;
-}
-
-.action-btn:hover {
-  transform: scale(1.2);
-}
-
-.view-btn {
-  color: #10b981;
-}
-
-.edit-btn {
-  color: #3b82f6;
-}
-
-.delete-btn {
-  color: #ef4444;
+/* States */
+.loading-state,
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+  font-size: 14px;
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
-  .leads-list-page {
-    padding: 12px;
-  }
-
+@media (max-width: 768px) {
   .list-header {
     flex-direction: column;
     align-items: stretch;
-    gap: 16px;
   }
 
   .search-section {
     flex-direction: column;
   }
 
-  .search-input {
-    width: 100%;
+  .search-box {
+    max-width: 100%;
   }
 
   .pagination-info {
     justify-content: center;
   }
-}
 
-@media (max-width: 768px) {
-  .data-table {
-    font-size: 0.85rem;
+  .table-wrapper {
+    overflow-x: scroll;
   }
 
-  .data-table th,
-  .data-table td {
-    padding: 12px;
+  .data-table {
+    min-width: 1000px;
   }
 }
