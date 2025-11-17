@@ -9,8 +9,10 @@ import Auth from "./features/auth/Auth";
 import Dashboard from "./pages/Dashboard/Dashboard";
 
 import LeadsList from "./pages/PreSalesCRM/Leads/LeadsList";
-import LeadForm from "./pages/PreSalesCRM/Leads/LeadForm";
-import LeadDetails from "./pages/PreSalesCRM/Leads/LeadDetails";
+// import LeadForm from "./pages/PreSalesCRM/Leads/LeadForm";
+import LeadStaticPage from "./pages/PreSalesCRM/Leads/LeadStaticPage";
+import SaleAddLead from "./pages/PreSalesCRM/Leads/SaleAddLead";
+
 
 import InventoryList from "./pages/Inventory/InventoryList";
 import InventoryCreate from "./pages/Inventory/InventoryCreate";
@@ -41,10 +43,14 @@ export default function App() {
               <Route path="/lead-setup" element={<LeadSetupPage />} />
 
               {/* Leads - Standardized under /leads */}
-              <Route path="/leads" element={<LeadsList />} />
+              {/* <Route path="/leads" element={<LeadsList />} />
+             
               <Route path="/leads/new" element={<LeadForm />} />
               <Route path="/leads/:id" element={<LeadDetails />} />
-              <Route path="/leads/:id/edit" element={<LeadForm />} />
+              <Route path="/leads/:id/edit" element={<LeadForm />} /> */}
+              <Route path="/leads/:id" element={<LeadStaticPage />} />
+              <Route path="/leads/new" element={< SaleAddLead/>} />
+              <Route path="/leads" element={<LeadsList />} />
 
               <Route path="/sales/inventory" element={<InventoryList />} />
               <Route path="/sales/inventory/new" element={<InventoryCreate />} />

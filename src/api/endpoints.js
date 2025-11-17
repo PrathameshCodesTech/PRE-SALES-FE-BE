@@ -42,8 +42,10 @@ export const URLS = {
   leadSources: "leadManagement/sources/",
 
   // Sales Leads (NEW)
-  salesLeads: "leadManagement/v2/sales-leads/",
-  salesLeadBundleCreate: "leadManagement/v2/sales-leads/bundle-create/",
+  salesLeads: "sales/sales-leads/",
+  salesLeadBundleCreate: "sales/sales-leads/bundle-create/",
+
+  channelPartnersBySource: "channel/channel-partners/by-source/",
 
   visitingHalf: "leadManagement/visiting-half/",
   familySize: "leadManagement/family-size/",
